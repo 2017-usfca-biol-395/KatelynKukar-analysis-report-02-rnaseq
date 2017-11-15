@@ -1,14 +1,16 @@
-Analysis Report 2: Your Title Here
+Analysis Report 2: Understanding Genetic Expression within Female Lung Cancer Patients
 ================
-Don Francisco
-November 10, 2017
-
-*Overall, a single-spaced page is about 500 words. So if the guidelines say half of a page, think about writing around 250 words. You can use the wordcountaddin in RStudio to track your progress.*
+Katelyn Kukar
+November 15, 2017
 
 Introduction
 ============
 
-Add about 1 page here. Must cite at least 5 peer reviewed articles.
+Genes encode the proteins which dictate cellular functions within organisms. Each step in the flow of information from DNA to RNA to protein provides the cell with integral information that works to regulate functionality by adjusting the amount and type of proteins manufactured. The functionality of genes has been found to be unique among individual samples, with one study stating gene expression levels were variable based on the “underlying genetics of the \[samples\] they were collected from” (1). Gene expression also gives essential information regarding cellular responses during diseased states and the communication of these genes to the cells to increase organismal immunity. Immune responses are heighted by a combination of genes when the cell is under distress, and understanding the unique integration of genes in molecular pathways can thoroughly improve the efficacy of combination treatments (2). By profiling the expression of genes based on these genetically inherited differences, disease treatments can be crafted on an individual, patient basis.
+
+Studies behind benign and malignant tumor formation are of increased interest for gene therapy studies, since they offer a control mechanism for the up and down regulation of essential genes under normal or uncontrolled cellular growth conditions. “Clients with very advanced cancers refractory to conventional treatment indicate that \[gene therapy\] can specifically mediate tumor regression with low toxicity” (3). Therefore, understanding how the organism responds to the inheritance of a single functionally defective gene through the regulation of defense genes is imperative to stopping tumor growth in patients prior to the removal of the defective gene through vector therapy (3).
+
+Lung cancer has traditionally been associated with smoke inhalation from carcinogenic substances which activate a downstream pathway to accelerate the development of cancer (5). Lung cancer is specifically caused by epidermal growth factor receptor genes, a receptor tyrosine kinase that can be modulated through inhibition with EGFR synthetic inhibition therapy (getfitnib) (4). However, these methods are not conducive to long term treatments, due to the sensitivity predictions and high mutation rates of cancerous cells (4). Within this study, we evaluate the representative genes discovered within smoking and non-smoking female patient tumors and their associations with the human body, specifically EGFR. We predict that...HYPOTHESIS
 
 Methods
 =======
@@ -28,18 +30,25 @@ Results
 
 In addition to a minimum of 4-5 figures/tables (and associated captions), you should include sufficient text in this section to describe what your findings were. Remember that in the results section you just describe what you found, but you don't interpret it - that happens in the discussion.
 
-Histogram of Age
-
 ``` r
 female_data <- subset(final_table, gender == "female")
 
-hist(female_data$age_at_diagnosis,
-     main = "Figure 2. Age Diagnosis",
-     xlab = "Age of Particpant",
-     ylab = "Number of Participants")
+#make a table with the number of females at each stage in treatment, fill by smoking status (never previously current)
+
+female_data %>%
+  filter(genename == "A1CF") %>%
+  with(table(cancer_stage, smoking_status)) %>%
+  kable(rownames("Smoking Status"))
 ```
 
-![](Analysis_Report_02_RNASeq_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-1-1.png)
+|     |  current|  never|  previously|
+|-----|--------:|------:|-----------:|
+| 1A  |        0|     15|           1|
+| 1B  |        0|      9|           1|
+| 2A  |        0|      2|           0|
+| 3A  |        1|      0|           1|
+| 3B  |        0|      2|           0|
+| 4   |        0|      2|           0|
 
 | genename |  mean\_count|
 |:---------|------------:|
@@ -48,29 +57,41 @@ hist(female_data$age_at_diagnosis,
 | SFTPA2   |     66520.77|
 | CD74     |     58994.05|
 | MIR6723  |     58916.57|
-| RNA28S5  |     58079.55|
-| FTL      |     51200.27|
-| SFTPA1   |     50997.97|
-| TPT1     |     40372.54|
-| FN1      |     37823.53|
-| RNA18S5  |     37644.20|
-| FTH1     |     37047.05|
-| SFTPC    |     35673.21|
-| HLA      |     33688.34|
-| NEAT1    |     31635.98|
 
-**Table 1**: The most highly expressed genes in both genders included *SFTPB* and *EEF1A1*.
+**Table 1**: The most highly expressed genes for females includes *SFTPB* and *EEF1A1*.
 
 ![](Analysis_Report_02_RNASeq_files/figure-markdown_github-ascii_identifiers/make-barplot-of-highly-expressed-genes-1.png)
 
-**Figure 1**: Here we show an example figure caption.
+**Figure 1**: Here we visualize the mean counts of the top five most prevelant genes revealed within the entire sample pool. We visualize *EEF1A1* to be the gene of most interest
 
 ![](Analysis_Report_02_RNASeq_files/figure-markdown_github-ascii_identifiers/make-boxplot-of-highly-expressed-genes-1.png)
 
-**Figure 2**: Here we show another example figure caption.
+**Figure 2**: Here we visualize the gene counts for the top 5 most prevelant genes categorized by cancer stage. We can see *EEF1A1* has the highest count per gene in stages 1A, 2A, 3B, and 4. We see *SFTPB* is the highest in stage 1B, and *SFTPA2* is the highest in stage 3A. *SFTPB* has a boxplot that has a much larger spread in stage 1B than any other spreads seen throughout all stages.
+
+``` r
+female_data %>%
+  filter(genename %in% top_genes) %>%
+  ggplot(aes(x = genename,
+             y = counts_lengthscaledtpm)) +
+    geom_boxplot() +
+    facet_wrap(~smoking_status) +
+    xlab("Gene Name") +
+    ylab("Scaled read counts per gene") +
+    ggtitle("Read counts per gene by smoking status") +
+    theme_bw() + # simplifies theme
+    theme(axis.text.x = # rotates x axis labels vertically
+            element_text(angle = 90,
+                         hjust = 1))
+```
+
+![](Analysis_Report_02_RNASeq_files/figure-markdown_github-ascii_identifiers/read%20counts%20per%20gene%20by%20smoking%20status-1.png)
+
+**Figure 3**: Here we visualize the gene counts for the top 5 most prevelant genes categorized by smoking status. We can see *EEF1A1* has the largest statistical spread in patients that have never smoked, while we see *SFTPA2* has the largest spread in previously smoking pateints. *SFTPB* has a noticible spread in both never and previously smoking patients, but more outliers are seen in never smoking patients. Currently smooking patients have expression in *EEF1A1* and *MIR6723*.
 
 Discussion
 ==========
+
+Look in OMIM under NCBI
 
 Add around 1-2 pages interpreting your results and considering future directions one might take in analyzing these data.
 
