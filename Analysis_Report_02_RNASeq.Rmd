@@ -15,7 +15,7 @@ Genes encode the proteins which dictate cellular functions within organisms. Eac
 
 Studies behind benign and malignant tumor formation are of increased interest for gene therapy studies, since they offer a control mechanism for the up and down regulation of essential genes under normal or uncontrolled cellular growth conditions. “Clients with very advanced cancers refractory to conventional treatment indicate that [gene therapy] can specifically mediate tumor regression with low toxicity” (3). Therefore, understanding how the organism responds to the inheritance of a single functionally defective gene through the regulation of defense genes is imperative to stopping tumor growth in patients prior to the removal of the defective gene through vector therapy (3). 
 
-Lung cancer has traditionally been associated with smoke inhalation from carcinogenic substances which activate a downstream pathway to accelerate the development of cancer (5). Lung cancer is specifically caused by epidermal growth factor receptor genes, a receptor tyrosine kinase that can be modulated through inhibition with EGFR synthetic inhibition therapy (getfitnib) (4). However, these methods are not conducive to long term treatments, due to the sensitivity predictions and high mutation rates of cancerous cells (4). Within this study, we evaluate the representative genes discovered within smoking and non-smoking patient tumors and their associations with the human body, specifically EGFR. We predict that...HYPOTHESIS
+Lung cancer has traditionally been associated with smoke inhalation from carcinogenic substances which activate a downstream pathway to accelerate the development of cancer (5). Lung cancer is specifically caused by epidermal growth factor receptor genes, a receptor tyrosine kinase that can be modulated through inhibition with EGFR synthetic inhibition therapy (getfitnib) (4). However, these methods are not conducive to long term treatments, due to the sensitivity predictions and high mutation rates of cancerous cells (4). Within this study, we evaluate the representative genes discovered within smoking and non-smoking female patient tumors and their associations with the human body, specifically EGFR. We predict that...HYPOTHESIS
 
 
 # Methods
@@ -65,21 +65,18 @@ names(final_table) %<>% tolower
 stopifnot(exists("final_table"))
 ```
 
-Histogram of Age
+
 ```{r}
 female_data <- subset(final_table, gender == "female")
 
-hist(female_data$age_at_diagnosis,
-     main = "Figure 2. Age Diagnosis",
-     xlab = "Age of Particpant",
-     ylab = "Number of Participants")
-
+#make a plot with the number of females at each stage in treatment, fill by smoking status (never previously current)
 plot_bar(female_data,
               x = "cancer_stage")) +
   xlab("Cancer Stage") +
   geom_boxplot(width = 0.2) +
   theme_bw() +
-  labs(title = "Males Versus Females Richness Metric")
+  labs(title = "Title")
+
 ```
 
 
@@ -88,38 +85,41 @@ plot_bar(female_data,
 # There are many many genes in this dataset, so we can
 # subset it down to just a few here to look for interesting patterns
 # in the most highly expressed
-femaletop_15 <- female_data %>%
+femaletop_5 <- female_data %>%
   group_by(genename) %>%
   summarize(mean_count = mean(counts_lengthscaledtpm)) %>%
   arrange(desc(mean_count)) %>%
-  head(n = 15)
+  head(n = 5)
 
 # then we can use the `kable()` function to make a nicely formatted
 # markdown table
-femaletop_15 %>%
+femaletop_5 %>%
   kable()
 ```
 
-**Table 1**: The most highly expressed genes in both genders included *SFTPB* and *EEF1A1*.
+**Table 1**: The most highly expressed genes for females includes *SFTPB* and *EEF1A1*.
 
 ```{r make-barplot-of-highly-expressed-genes, echo = FALSE}
 # this code uses the same data as above, but use it to make a
 # barplot - remember geom_col() is just like
 # when you use geom_bar(stat = "identity")
-femaletop_15 %>%
+femaletop_5 %>%
   ggplot(aes(x = genename,
              y = mean_count)) +
-    geom_col(position = "dodge")
+    geom_col(position = "dodge", color = "grey", fill = "pink") +
+  xlab("Gene of Interest") +
+  theme_bw() +
+  labs(title = "Top 5 Most Prevelant Genes")
 ```
 
-**Figure 1**: Here we show an example figure caption.
+**Figure 1**: Here we visualize the mean counts of the top five most prevelant genes revealed within the entire sample pool. We visualize *EEF1A1* to be the gene of most interest
 
 ```{r make-boxplot-of-highly-expressed-genes, echo = FALSE}
 # here we just want to pull out the unique gene names and turn
 # them into a vector so we can use it below to make a boxplot
 # we use the pull() funtion to get this as a vector, just like
 # we did when making histograms several weeks ago
-top_genes <- femaletop_15 %>%
+top_genes <- femaletop_5 %>%
   ungroup() %>%
   select(genename) %>%
   unique() %>%
@@ -143,7 +143,8 @@ female_data %>%
                          hjust = 1))
 ```
 
-**Figure 2**: Here we show another example figure caption.
+**Figure 2**: Here we visualize the gene counts for the top 5 most prevelant genes categorized by cancer stage. We can see *EEF1A1* has the highest count per gene in stages 1A, 2A, 3B, and 4. We see *SFTPB* is the highest in stage 1B, and *SFTPA2* is the highest in stage 3A. *SFTPB* has a boxplot that has a much larger spread in stage 1B than any other spreads seen throughout all stages. 
+
 ```{r, read counts per gene by smoking status}
 female_data %>%
   filter(genename %in% top_genes) %>%
@@ -160,6 +161,7 @@ female_data %>%
                          hjust = 1))
 ```
 
+**Figure 3**: Here we visualize the gene counts for the top 5 most prevelant genes categorized by smoking status. We can see *EEF1A1* has the largest statistical spread in patients that have never smoked, while we see *SFTPA2* has the largest spread in previously smoking pateints. *SFTPB* has a noticible spread in both never and previously smoking patients, but more outliers are seen in never smoking patients. Currently smooking patients have expression in *EEF1A1* and *MIR6723*.
 
 
 # Discussion
