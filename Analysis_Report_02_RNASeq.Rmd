@@ -11,7 +11,12 @@ csl: bioinformatics.csl
 
 # Introduction
 
-Add about 1 page here. Must cite at least 5 peer reviewed articles.
+Genes encode the proteins which dictate cellular functions within organisms. Each step in the flow of information from DNA to RNA to protein provides the cell with integral information that works to regulate functionality by adjusting the amount and type of proteins manufactured. The functionality of genes has been found to be unique among individual samples, with one study stating gene expression levels were variable based on the “underlying genetics of the [samples] they were collected from” (1). Gene expression also gives essential information regarding cellular responses during diseased states and the communication of these genes to the cells to increase organismal immunity. Immune responses are heighted by a combination of genes when the cell is under distress, and understanding the unique integration of genes in molecular pathways can thoroughly improve the efficacy of combination treatments (2). By profiling the expression of genes based on these genetically inherited differences, disease treatments can be crafted on an individual, patient basis. 
+
+Studies behind benign and malignant tumor formation are of increased interest for gene therapy studies, since they offer a control mechanism for the up and down regulation of essential genes under normal or uncontrolled cellular growth conditions. “Clients with very advanced cancers refractory to conventional treatment indicate that [gene therapy] can specifically mediate tumor regression with low toxicity” (3). Therefore, understanding how the organism responds to the inheritance of a single functionally defective gene through the regulation of defense genes is imperative to stopping tumor growth in patients prior to the removal of the defective gene through vector therapy (3). 
+
+Lung cancer has traditionally been associated with smoke inhalation from carcinogenic substances which activate a downstream pathway to accelerate the development of cancer (5). Lung cancer is specifically caused by epidermal growth factor receptor genes, a receptor tyrosine kinase that can be modulated through inhibition with EGFR synthetic inhibition therapy (getfitnib) (4). However, these methods are not conducive to long term treatments, due to the sensitivity predictions and high mutation rates of cancerous cells (4). Within this study, we evaluate the representative genes discovered within smoking and non-smoking patient tumors and their associations with the human body, specifically EGFR. We predict that...HYPOTHESIS
+
 
 # Methods
 
@@ -60,19 +65,38 @@ names(final_table) %<>% tolower
 stopifnot(exists("final_table"))
 ```
 
+Histogram of Age
+```{r}
+female_data <- subset(final_table, gender == "female")
+
+hist(female_data$age_at_diagnosis,
+     main = "Figure 2. Age Diagnosis",
+     xlab = "Age of Particpant",
+     ylab = "Number of Participants")
+
+plot_bar(female_data,
+              x = "cancer_stage")) +
+  xlab("Cancer Stage") +
+  geom_boxplot(width = 0.2) +
+  theme_bw() +
+  labs(title = "Males Versus Females Richness Metric")
+```
+
+
+
 ```{r make-summary-table, echo = FALSE}
 # There are many many genes in this dataset, so we can
 # subset it down to just a few here to look for interesting patterns
 # in the most highly expressed
-top_15 <- final_table %>%
-  group_by(gender, genename) %>%
+femaletop_15 <- female_data %>%
+  group_by(genename) %>%
   summarize(mean_count = mean(counts_lengthscaledtpm)) %>%
   arrange(desc(mean_count)) %>%
   head(n = 15)
 
 # then we can use the `kable()` function to make a nicely formatted
 # markdown table
-top_15 %>%
+femaletop_15 %>%
   kable()
 ```
 
@@ -82,10 +106,9 @@ top_15 %>%
 # this code uses the same data as above, but use it to make a
 # barplot - remember geom_col() is just like
 # when you use geom_bar(stat = "identity")
-top_15 %>%
+femaletop_15 %>%
   ggplot(aes(x = genename,
-             y = mean_count,
-             fill = gender)) +
+             y = mean_count)) +
     geom_col(position = "dodge")
 ```
 
@@ -96,7 +119,7 @@ top_15 %>%
 # them into a vector so we can use it below to make a boxplot
 # we use the pull() funtion to get this as a vector, just like
 # we did when making histograms several weeks ago
-top_genes <- top_15 %>%
+top_genes <- femaletop_15 %>%
   ungroup() %>%
   select(genename) %>%
   unique() %>%
@@ -105,16 +128,15 @@ top_genes <- top_15 %>%
 # now we need to filter from the full data set again, because
 # we don't just want summary data, we want all the data in
 # order to make boxplots
-final_table %>%
+female_data %>%
   filter(genename %in% top_genes) %>%
   ggplot(aes(x = genename,
-             y = counts_lengthscaledtpm,
-             fill = gender)) +
+             y = counts_lengthscaledtpm)) +
     geom_boxplot() +
     facet_wrap(~cancer_stage) +
     xlab("Gene Name") +
     ylab("Scaled read counts per gene") +
-    ggtitle("Read counts per gene by gender and cancer stage") +
+    ggtitle("Read counts per gene by cancer stage") +
     theme_bw() + # simplifies theme
     theme(axis.text.x = # rotates x axis labels vertically
             element_text(angle = 90,
@@ -122,6 +144,23 @@ final_table %>%
 ```
 
 **Figure 2**: Here we show another example figure caption.
+```{r, read counts per gene by smoking status}
+female_data %>%
+  filter(genename %in% top_genes) %>%
+  ggplot(aes(x = genename,
+             y = counts_lengthscaledtpm)) +
+    geom_boxplot() +
+    facet_wrap(~smoking_status) +
+    xlab("Gene Name") +
+    ylab("Scaled read counts per gene") +
+    ggtitle("Read counts per gene by smoking status") +
+    theme_bw() + # simplifies theme
+    theme(axis.text.x = # rotates x axis labels vertically
+            element_text(angle = 90,
+                         hjust = 1))
+```
+
+
 
 # Discussion
 
