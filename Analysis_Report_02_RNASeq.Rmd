@@ -1,13 +1,12 @@
 ---
-title: "Analysis Report 2: Your Title Here"
-author: "Don Francisco"
-date: "November 10, 2017"
+title: "Analysis Report 2: Understanding Genetic Expression within Female Lung Cancer Patients"
+author: "Katelyn Kukar"
+date: "November 15, 2017"
 output: github_document
 bibliography: references.bib
 csl: bioinformatics.csl
 ---
 
-*Overall, a single-spaced page is about 500 words. So if the guidelines say half of a page, think about writing around 250 words. You can use the wordcountaddin in RStudio to track your progress.*
 
 # Introduction
 
@@ -69,18 +68,17 @@ stopifnot(exists("final_table"))
 ```{r}
 female_data <- subset(final_table, gender == "female")
 
-#make a plot with the number of females at each stage in treatment, fill by smoking status (never previously current)
-plot_bar(female_data,
-              x = "cancer_stage")) +
-  xlab("Cancer Stage") +
-  geom_boxplot(width = 0.2) +
-  theme_bw() +
-  labs(title = "Title")
+#make a table with the number of females at each stage in treatment, fill by smoking status (never previously current)
+
+female_data %>%
+  filter(genename == "A1CF") %>%
+  with(table(cancer_stage, smoking_status)) %>%
+  kable()
 
 ```
 
 
-
+ 
 ```{r make-summary-table, echo = FALSE}
 # There are many many genes in this dataset, so we can
 # subset it down to just a few here to look for interesting patterns
@@ -132,7 +130,7 @@ female_data %>%
   filter(genename %in% top_genes) %>%
   ggplot(aes(x = genename,
              y = counts_lengthscaledtpm)) +
-    geom_boxplot() +
+    geom_boxplot(position = "dodge", color = "black", fill = "hotpink") +
     facet_wrap(~cancer_stage) +
     xlab("Gene Name") +
     ylab("Scaled read counts per gene") +
@@ -150,7 +148,7 @@ female_data %>%
   filter(genename %in% top_genes) %>%
   ggplot(aes(x = genename,
              y = counts_lengthscaledtpm)) +
-    geom_boxplot() +
+    geom_boxplot(position = "dodge", color = "black", fill = "deeppink3") +
     facet_wrap(~smoking_status) +
     xlab("Gene Name") +
     ylab("Scaled read counts per gene") +
@@ -165,6 +163,8 @@ female_data %>%
 
 
 # Discussion
+
+Look in OMIM under NCBI
 
 Add around 1-2 pages interpreting your results and considering future directions one might take in analyzing these data.
 
