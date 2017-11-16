@@ -216,6 +216,6 @@ The next most prevelant gene within our tested samples after *EEF1A1* is *SFTPB*
 After *SFTPB* and *EEF1A1* three remaining genes show increased expression within the female tissue samples:
 1. *SFTPA2*: surfactant, pulmonary-associated protein A2 also important in supressing lung cancer progression (OMIM).
 2. *MIR6723*: an miRNA, which could be used in regulatory pathway alterations
-3. *CD74*:
+3. *CD74*: an antigen that is associated with inflammation and cancer within humans to increase cell proliferation of cancer cells.
 
 # Sources Cited
