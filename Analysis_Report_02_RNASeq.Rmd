@@ -29,12 +29,30 @@ Later, Li et al. [@li2015rna] utilized RNA sequencing data from 68 lung adenocar
 
 We used the metadata originally retrieved from Seo et al. and re-purposed by Li et al. to create a relative study on the genes found within cancerous tissues from never, previously, and currently smoking patients.
 
-**The compiled and joined data set was crafted on a server from the original sequenced SRA table. The data was formatted so have column sperated values that create unique names for each vector of interest.**
+An initial script was made to install the necessary tools and download sequnecing files for RNA-seq analysis on Ubunutu 16.04 with an sra-toolkit. Once the toolkit was applied to a path it was installed and run against NCBI to excise the column of sample run ids for downloading.
 
-**These are the methods that were used to process the sequencing data. Should probably be at least a half of a page. At a very minimum should include citations for biomartr, trimmomatic, and sailfish. Note that these three methods references don't count towards the five references you need to cite in the introductio**
+Another script was made to install the biomartr package to download a reference genome, transcripts, and annotation for the human genome. The source library was fun and then biocLite to get the genome, CDS, RNA and Gff lines.
+
+Next, the paired-end downloaded sra files needed to be converted to fastq files. The sra-toolkit was again applied to convert the files in a for loop and split the files in forward and reverse reads utilizing fastq-dump.
+
+To later create an alignment of the seqeunces given an index of kmers was required. Sailfish is a computational method that quantifies the abundance of annotated RNA isoforms from the RNA-seq analysis. Sailfish does this by looking at k-mers which refer to all the possible subsequneces from the reads (all possible isoforms) [@patro2014sailfish].
+
+Next quality checks were applied on the fastq files and output was saved. Quality checks are important to see if the original sequencing data sets have aggregious problems to inhibit analyses later on.
+
+Once the quality of the sequences were evaluated then the paired end reads were trimmed with trimmomatic to remove insufficient read frames. This required TruSeq3-PE.fa file with Illumnia adaptors with strict parameters to trim reads that drop below 20 in a window size of 4 absed on fastqc evaluation. Another script was run after this to ensure all files were correctly trimmed and none were missed over by the code. This utilized a for loop to determine how variants of the original output were decided, and if not already trimmed then the first script was rerun on these missed files [@bolger2014trimmomatic].
+
+Returning to the k-mer based index sailfish was run on the trimmed sequences to align them from forward and reverse reads. In a for loop these samples were aligned for each file [@patro2014sailfish]. 
+
+Next a script to construct a transcript to gene ID mappling table was made using a Genbank ID to Gene names list which applied the sequences to known gene seqeunces already within Genbank. This file was transferred into human-readable gene names for analysis with perl and the removal of the beginning output to only leave required information (NCBI).
+
+From the table made the genbank ID to gene name table was parsed to relable the rws to add a transcript ID and a gene name. This was done with sailfish (NCBI).
+
+Lastly, an R script was made to read in all of the "transcript counts made by sailfish individually on each sample, aggregate those counts (which are at the transcript level) to the gene level, normalize them based on length and read depth, and then build a table with rows as genes and columns as samples, with each cell being the normalized count for that gene in that sample. Then, we want to join in the two other metadata files we have,from SRA and from the supplementatry table from the original manuscript that has information like patient age and smoking behavior. We have to do some cleaning along the way, and the gathered (melted) output file is rather big so we only include interesting columns, and write out the output in compressed csv format as well as binary RData format" (Zimmerman 2017). Once this was made troubleshooting was used to check the upload before the data was applied within R.
+
+Within R the table was read in with the SRA sample metadata and the table was then manipulated to change the column names to be usable in graphical representations with human-readable information. Vectors were created for the sailfish quant files to the reconstructed table. The table was melted and gathered to include all the counts for all the samples by genes with the metadata tables while discarding redundant files. This table lastly had to be zipped to fit within GitHubs regulations [@patro2014sailfish]. 
 
 
-The code tolower was used to make each column name lower case before sub-setting the data to include only female participants. Using dplyr a primary table was crafted to show the number of patients within each cancer stage and their smoking status. Next, the data was subsetted again to look only at the top 5 genes of interest with the highest mean counts. Dplyr was used again to filter the data to look at the mean count of the 5 top genes as a table. These genes were summarized in a bar plot for reference. Once summarized the genes of interest were coded to become a vector to be used in accordance with smoking status and cancer stage. Boxplots were made utilizing this vector through a ggplot and dplyr syntax. **Lastly, dplyr was used again with the function mutate to visualize the up and down-regulation of the most interesting genes in comparisson to the paired normal tissues sewqenced as a baseline.**
+The code tolower was used to make each column name lower case before sub-setting the data to include only female participants. Using dplyr a primary table was crafted to show the number of patients within each cancer stage and their smoking status. Next, the data was subsetted again to look only at the top 5 genes of interest with the highest mean counts. Dplyr was used again to filter the data to look at the mean count of the 5 top genes as a table. These genes were summarized in a bar plot for reference. Once summarized the genes of interest were coded to become a vector to be used in accordance with smoking status and cancer stage. Boxplots were made utilizing this vector through a ggplot and dplyr syntax.
 
 
 # Results
@@ -191,20 +209,6 @@ female_data %>%
 **Figure 3**: Here we visualize the gene counts for the top 5 most prevalent genes categorized by smoking status. 
 
 From Figure 3, we can see *EEF1A1* has the largest statistical spread in patients that have never smoked, while we see *SFTPA2* has the largest spread in previously smoking patients. *SFTPB* has a noticeable spread in both never and previously smoking patients, but more outliers are seen in never smoking patients. Currently smoking patients have expression in *EEF1A1* and *MIR6723*.
-
-```{r, gene-expression, echo = FALSE}
-#final_data %>%
-  #filter(genename == "EEF1A1") %>%
-  #mutate(cancer_or_normal = substr(sample_name_s, 4, 4)) %>%
-  #mutate(patient_number = paste0("Patient", substr(sample_name_s, 5, 7))) %>%
-  #group_by(patient_number, cancer_or_normal) %>%
-  #summarize(mean_expression = mean(counts_lengthscaledtpm)) %>%
-  #spread(key = cancer_or_normal,
-        #value = mean_expression) %>%
-  #na.omit() %>%
-  #mutate(gene_up_or down = C - S)
-```
-
 
 
 # Discussion
