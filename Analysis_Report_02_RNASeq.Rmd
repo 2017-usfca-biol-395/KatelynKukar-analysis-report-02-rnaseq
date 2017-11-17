@@ -90,7 +90,10 @@ female_data %>%
   as.data.frame() %>%
   spread(key = smoking_status,
          value = Freq) %>%
-  kable(col.names = c("Cancer Stage", "Current Smoker", "Never Smoker", "Previous Smoker"))
+  kable(col.names = c("Cancer Stage",
+                      "Current Smoker",
+                      "Never Smoker",
+                      "Previous Smoker"))
 
 ```
 
