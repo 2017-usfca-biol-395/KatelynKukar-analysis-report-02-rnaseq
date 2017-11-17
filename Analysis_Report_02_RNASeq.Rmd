@@ -83,7 +83,7 @@ Since female participants are primarily of interest the data was filtered to hig
 # Subset all data to only have female patients
 female_data <- subset(final_table, gender == "female")
 
-# Make a table with the number of females at each stage in treatment, fill by smoking status (never previously current)
+# Make a table for cancer stage and smoking status
 female_data %>%
   filter(genename == "A1CF") %>%
   with(table(cancer_stage, smoking_status)) %>%
